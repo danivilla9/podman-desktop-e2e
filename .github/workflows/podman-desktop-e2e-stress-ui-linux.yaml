@@ -98,17 +98,19 @@ jobs:
     - name: Install virtiofsd (qemu dependency)
       run: |
         sudo apt-get install virtiofsd
-        echo "dpkg -L virtiofsd"
+        echo "---Running 'dpkg -L virtiofsd'---"
         dpkg -L virtiofsd || echo "virtiofsd package not found"
-        echo "which virtiofsd"
+        echo "---Running 'which virtiofsd'---"
         which virtiofsd || echo "virtiofsd not in PATH"
-        echo "ls -l /usr/libexec/virtiofsd"
+        echo "---Running 'ls -l /usr/libexec/virtiofsd'---"
         ls -l /usr/libexec/virtiofsd || echo "virtiofsd not found in /usr/libexec"
-        echo "adding to PATH..."
+        echo "---adding to PATH...---"
         echo "export PATH=$PATH:/usr/libexec" >> ~/.bashrc
         echo "export PATH=$PATH:/usr/libexec" >> ~/.profile
         export PATH=$PATH:/usr/libexec
+        echo "---Running 'which virtiofsd'---"
         which virtiofsd || echo "virtiofsd STILL not in PATH"
+        
 
     - name: Install gvproxy (podman dependency)
       run: |
@@ -149,6 +151,9 @@ jobs:
         fi
   
         podman machine init $podman_flags
+
+        echo "---Running 'which virtiofsd'---"
+        which virtiofsd || echo "virtiofsd STILL not in PATH"
 
         if [ ${{ env.PODMAN_START }} == 1 ]; then
           podman machine start
