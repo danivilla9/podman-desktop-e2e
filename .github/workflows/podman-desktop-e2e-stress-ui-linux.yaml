@@ -158,7 +158,7 @@ jobs:
         which virtiofsd || echo "virtiofsd STILL not in PATH"
 
         if [ ${{ env.PODMAN_START }} == 1 ]; then
-          podman machine start --qemu-options="-accel tcg"
+          podman machine start --qemu-options="--accel tcg"
         fi
 
     - name: Create expected objects for the UI stress test
