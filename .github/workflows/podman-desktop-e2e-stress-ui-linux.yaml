@@ -149,12 +149,14 @@ jobs:
         elif [ ${{ env.PODMAN_NETWORKING }} == 1 ]; then
           podman_flags+="--user-mode-networking "
         fi
-  
+        
         podman machine init $podman_flags
 
         echo "---Running 'which virtiofsd'---"
+        which virtiofsd || echo "virtiofsd not in PATH"
+        export PATH=$PATH:/usr/libexec
         which virtiofsd || echo "virtiofsd STILL not in PATH"
-
+        
         if [ ${{ env.PODMAN_START }} == 1 ]; then
           podman machine start
         fi
