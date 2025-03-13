@@ -89,35 +89,14 @@ jobs:
         wget ${{ env.PODMAN_URL }}
         tar -xvf podman-remote-static-linux_amd64.tar.gz
         sudo mv bin/podman-remote-static-linux_amd64 /usr/local/bin/podman
-        podman --version
 
-    - name: Install QEMU (podman dependency)
+    - name: Install dependencies
       run: |
+        #qemu
         sudo apt-get install qemu-system
-
-    - name: Install virtiofsd (qemu dependency)
-      run: |
+        #virtiofsd
         sudo apt-get install virtiofsd
-        echo "---Running 'dpkg -L virtiofsd'---"
-        dpkg -L virtiofsd || echo "virtiofsd package not found"
-        echo "---Running 'which virtiofsd'---"
-        which virtiofsd || echo "virtiofsd not in PATH"
-        echo "---Running 'ls -l /usr/libexec/virtiofsd'---"
-        ls -l /usr/libexec/virtiofsd || echo "virtiofsd not found in /usr/libexec"
-        echo "---adding to PATH...---"
-        echo "export PATH=$PATH:/usr/libexec" >> ~/.bashrc
-        echo "export PATH=$PATH:/usr/libexec" >> ~/.profile
-        export PATH=$PATH:/usr/libexec
-        echo "---Running 'which virtiofsd'---"
-        which virtiofsd || echo "virtiofsd STILL not in PATH"
-        
-    - name: Install jq
-      run: |
-        sudo apt-get install -y jq
-
-    - name: Install gvproxy (podman dependency)
-      run: |
-        #download latest version
+        #gvproxy
         curl -s https://api.github.com/repos/containers/gvisor-tap-vsock/releases/latest | awk 'BEGIN { FS = "\"\\s*:\\s*" } /browser_download_url/ && /linux-amd64/ {print $2}' | xargs wget -O gvproxy-linux-amd64
         chmod +x ./gvproxy-linux-amd64
         sudo mkdir -p /usr/local/lib/podman/
@@ -155,18 +134,9 @@ jobs:
         
         podman machine init $podman_flags
 
-        echo "---Running 'which virtiofsd'---"
-        which virtiofsd || echo "virtiofsd not in PATH"
-        export PATH=$PATH:/usr/libexec
-        which virtiofsd || echo "virtiofsd STILL not in PATH"
-
-        # change to accel tcg
-        ls $HOME/.config/containers/podman/machine/qemu
-        CONFIG_FILE="$HOME/.config/containers/podman/machine/qemu/podman-machine-default.json"
-        jq '.Config[] |= gsub("-accel kvm"; "-accel tcg")' "$CONFIG_FILE" > temp.json && mv temp.json "$CONFIG_FILE"
-
         if [ ${{ env.PODMAN_START }} == 1 ]; then
-          podman machine start --qemu-options="--accel tcg"
+          export PATH=$PATH:/usr/libexec
+          podman machine start"
         fi
 
     - name: Create expected objects for the UI stress test
