@@ -111,6 +111,9 @@ jobs:
         echo "---Running 'which virtiofsd'---"
         which virtiofsd || echo "virtiofsd STILL not in PATH"
         
+    - name: Install jq
+      run: |
+        sudo apt-get install -y jq
 
     - name: Install gvproxy (podman dependency)
       run: |
@@ -156,6 +159,11 @@ jobs:
         which virtiofsd || echo "virtiofsd not in PATH"
         export PATH=$PATH:/usr/libexec
         which virtiofsd || echo "virtiofsd STILL not in PATH"
+
+        # change to accel tcg
+        ls $HOME/.config/containers/podman/machine/qemu
+        CONFIG_FILE="$HOME/.config/containers/podman/machine/qemu/podman-machine-default.json"
+        jq '.Config[] |= gsub("-accel kvm"; "-accel tcg")' "$CONFIG_FILE" > temp.json && mv temp.json "$CONFIG_FILE"
 
         if [ ${{ env.PODMAN_START }} == 1 ]; then
           podman machine start --qemu-options="--accel tcg"
