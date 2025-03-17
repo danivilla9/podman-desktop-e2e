@@ -135,7 +135,7 @@ jobs:
   
         podman pull $testImage
 
-        for imgNum in $(seq 1 $OBJECT_NUM);
+        for imgNum in {1..$OBJECT_NUM};
         do
           # create images
           taggedImage="localhost/my-image-$imgNum:latest"
