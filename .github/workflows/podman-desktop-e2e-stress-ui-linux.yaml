@@ -127,6 +127,9 @@ jobs:
 
     - name: Create expected objects for the UI stress test
       run: |
+        export "$ENV_VARS"  # Expands "OBJECT_NUM=100" into an actual environment variable
+        echo "OBJECT_NUM=$OBJECT_NUM" >> $GITHUB_ENV
+
         tinyImage="quay.io/podman/hello:latest" # ~0'8MB
         smallImage="quay.io/sclorg/nginx-122-micro-c9s:20230718" # ~70MB
         mediumImage="docker.io/library/nginx:latest" # ~200MB
@@ -135,10 +138,10 @@ jobs:
   
         podman pull $testImage
         
-        echo "OBJECT_NUM: ${{ env.OBJECT_NUM }}"
-        echo "seq 1 OBJECT_NUM: $(seq 1 ${{ env.OBJECT_NUM }}"
+        echo "OBJECT_NUM: $OBJECT_NUM"
+        echo "seq 1 OBJECT_NUM: $(seq 1 $OBJECT_NUM)"
 
-        for imgNum in $(seq 1 ${{ env.OBJECT_NUM }});
+        for imgNum in $(seq 1 $OBJECT_NUM);
         do
           # create images
           taggedImage="localhost/my-image-$imgNum:latest"
