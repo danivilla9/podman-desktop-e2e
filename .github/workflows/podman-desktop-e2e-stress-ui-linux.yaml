@@ -58,7 +58,7 @@ jobs:
     - name: Checkout podman desktop
       uses: actions/checkout@v4
       with:
-        repository: ${{ env.PD_REPO }}/${{ env.PD_FORK }}
+        repository: ${{ env.PD_FORK }}/${{ env.PD_REPO }}
         ref: ${{ env.PD_BRANCH }}
         path: podman-desktop
  
