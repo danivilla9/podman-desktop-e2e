@@ -137,7 +137,7 @@ jobs:
         echo "OBJECT_NUM: $OBJECT_NUM"
         echo "seq 1 OBJECT_NUM: $(seq 1 $OBJECT_NUM)"
 
-        for imgNum in $(seq 1 ${{ env.OBJECT_NUM }});
+        for imgNum in $(seq 1 $OBJECT_NUM);
         do
           # create images
           taggedImage="localhost/my-image-$imgNum:latest"
