@@ -116,9 +116,6 @@ jobs:
 
     - name: Create expected objects for the UI stress test
       run: |
-        export "$ENV_VARS"
-        echo "OBJECT_NUM=$OBJECT_NUM" >> $GITHUB_ENV
-
         tinyImage="quay.io/podman/hello:latest" # ~0'8MB
         smallImage="quay.io/sclorg/nginx-122-micro-c9s:20230718" # ~70MB
         mediumImage="docker.io/library/nginx:latest" # ~200MB
@@ -131,7 +128,9 @@ jobs:
           large) testImage="$largeImage" ;;
           *) echo "Unknown IMAGE_SIZE: $IMAGE_SIZE"; exit 1 ;;
         esac
-  
+        
+        echo "IMAGE_SIZE: $IMAGE_SIZE"
+
         podman pull $testImage
         
         echo "OBJECT_NUM: $OBJECT_NUM"
