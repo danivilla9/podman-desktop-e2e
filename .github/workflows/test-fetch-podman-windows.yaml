@@ -1,0 +1,67 @@
+name: Test Fetch Podman Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      podman_version:
+        default: 'nightly'
+        description: 'Podman version ("nightly", "latest", a release like "v5.6.1", or a full URL)'
+        type: string
+        required: true
+      architecture:
+        default: 'amd64'
+        description: 'Windows architecture (amd64 or arm64)'
+        type: choice
+        options:
+          - amd64
+          - arm64
+        required: true
+
+jobs:
+  test-fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Fetch Podman version
+        id: fetch
+        uses: ./.github/actions/fetch-podman-version-windows
+        with:
+          version_input: ${{ github.event.inputs.podman_version }}
+          architecture: ${{ github.event.inputs.architecture }}
+          file_type: msi
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify fetch outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "version=${{ steps.fetch.outputs.version }}"
+          echo "is_nightly=${{ steps.fetch.outputs.is_nightly }}"
+          echo "download_url=${{ steps.fetch.outputs.download_url }}"
+          echo "local_installer_path=${{ steps.fetch.outputs.local_installer_path }}"
+
+          if [[ "${{ steps.fetch.outputs.is_nightly }}" == "true" ]]; then
+            INSTALLER="${{ steps.fetch.outputs.local_installer_path }}"
+            if [[ -z "$INSTALLER" ]]; then
+              echo "Error: nightly fetch did not set local_installer_path"
+              exit 1
+            fi
+            if [[ ! -f "$INSTALLER" ]]; then
+              echo "Error: installer not found at $INSTALLER"
+              exit 1
+            fi
+            ls -la "$INSTALLER"
+          else
+            URL="${{ steps.fetch.outputs.download_url }}"
+            if [[ -z "$URL" ]]; then
+              echo "Error: release fetch did not set download_url"
+              exit 1
+            fi
+            echo "Release download URL: $URL"
+          fi
